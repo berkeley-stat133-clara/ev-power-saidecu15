@@ -8,27 +8,52 @@ format: typst
 ## **Part 0: libraries**
 
 ```{r}
-
+library(stringr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(tidyverse)
 ```
 
 ## **Part 1:** **Defining Research Question**
 
-Chosen Question:
+Chosen Question: What is the most common Renewable Energy source by state?
 
 ## **Part 2: Data Preparation and Cleaning**
 
 ```{r}
+renew23 <- read.csv("/Users/favoritestudent/Documents/stat133/project-4/ev-power-saidecu15/data/renew-use-2023.csv")
+total23 <- read.csv("/Users/favoritestudent/Documents/stat133/project-4/ev-power-saidecu15/data/total-use-2023.csv")
+ev2023 <- read.csv("/Users/favoritestudent/Documents/stat133/project-4/ev-power-saidecu15/data/ev-registrations-by-state-2023.csv")
 
+# Cleaning / Standardizing Column Names
+
+renew23 <- renew23 %>%  rename_with(~tolower(str_replaceall(.x, " ", "")))
 ```
 
 ## **Part 3: Joining / Pivoting Datasets for Analysis**
 
 ```{r}
-
+top_source <- renew23 %>%
+  group_by(state) %>%
+slice_max(renewable_use_2023, n = 1, with_ties = FALSE) %>%
+  ungroup()
+states_map <- map_data("state")
 ```
 
 ## **Part 4: Mapping Visualization**
 
 ```{r}
-
+ggplot(data = map_data) +
+  geom_map(
+    map = states_map,
+    aes(map_id = region, fill = energy_source),
+    color = "white"
+  ) +
+  expand_limits(x = states_map$long, y = states_map$lat) +
+  labs(
+    title = "Most Common Renewable Energy Source by State (2023)",
+    fill = "Energy Source"
+  ) +
+  theme_minimal()
 ```
